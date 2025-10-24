@@ -47,22 +47,23 @@ docker compose down
 1.  **Start the multi-node etcd cluster:**
 
     ```bash
-    docker compose -f docker-compose-multi.yml up -d
+    cd multi
+    docker compose -f docker-compose.yml up -d
     ```
 2.  **Interact with etcd:**
     *   Using `etcdctl` (example: put on `etcd1`, get on `etcd2`):
         ```bash
-        docker compose -f docker-compose-multi.yml exec etcd1 etcdctl put mykey "this is a test on multi-node"
-        docker compose -f docker-compose-multi.yml exec etcd2 etcdctl get mykey
+        docker compose -f docker-compose.yml exec etcd1 etcdctl put mykey "this is a test on multi-node"
+        docker compose -f docker-compose.yml exec etcd2 etcdctl get mykey
         ```
 3.  **Run tests:**
 
     ```bash
-    docker compose -f docker-compose-multi.yml run tests
+    docker compose -f docker-compose.yml run tests
     ```
 
 ### Cleanup
 
 ```bash
-docker compose -f docker-compose-multi.yml down
+docker compose -f docker-compose.yml down
 ```
