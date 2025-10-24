@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python/
+env/
+venv/
+.venv/
+dist/
+build/
+*.egg-info/
+
+# Docker
+*.log
+*.tmp
+
+# IDEs
+.idea/
+.vscode/
+
+# Pytest cache
+.pytest_cache/
+
+# macOS
+.DS_Store

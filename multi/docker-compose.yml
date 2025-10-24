@@ -1,0 +1,72 @@
+version: '3'
+services:
+  etcd1:
+    image: quay.io/coreos/etcd:v3.5.0
+    container_name: etcd1
+    environment:
+      ETCD_NAME: etcd1
+      ETCD_INITIAL_ADVERTISE_PEER_URLS: http://etcd1:2380
+      ETCD_LISTEN_PEER_URLS: http://0.0.0.0:2380
+      ETCD_ADVERTISE_CLIENT_URLS: http://etcd1:2379
+      ETCD_LISTEN_CLIENT_URLS: http://0.0.0.0:2379
+      ETCD_INITIAL_CLUSTER_TOKEN: etcd-cluster-1
+      ETCD_INITIAL_CLUSTER_STATE: new
+      ETCD_INITIAL_CLUSTER: etcd1=http://etcd1:2380,etcd2=http://etcd2:2380,etcd3=http://etcd3:2380
+    ports:
+      - "2379:2379"
+      - "2380:2380"
+    networks:
+      - etcd_network
+
+  etcd2:
+    image: quay.io/coreos/etcd:v3.5.0
+    container_name: etcd2
+    environment:
+      ETCD_NAME: etcd2
+      ETCD_INITIAL_ADVERTISE_PEER_URLS: http://etcd2:2380
+      ETCD_LISTEN_PEER_URLS: http://0.0.0.0:2380
+      ETCD_ADVERTISE_CLIENT_URLS: http://etcd2:2379
+      ETCD_LISTEN_CLIENT_URLS: http://0.0.0.0:2379
+      ETCD_INITIAL_CLUSTER_TOKEN: etcd-cluster-1
+      ETCD_INITIAL_CLUSTER_STATE: new
+      ETCD_INITIAL_CLUSTER: etcd1=http://etcd1:2380,etcd2=http://etcd2:2380,etcd3=http://etcd3:2380
+    ports:
+      - "2381:2379"
+      - "2382:2380"
+    networks:
+      - etcd_network
+
+  etcd3:
+    image: quay.io/coreos/etcd:v3.5.0
+    container_name: etcd3
+    environment:
+      ETCD_NAME: etcd3
+      ETCD_INITIAL_ADVERTISE_PEER_URLS: http://etcd3:2380
+      ETCD_LISTEN_PEER_URLS: http://0.0.0.0:2380
+      ETCD_ADVERTISE_CLIENT_URLS: http://etcd3:2379
+      ETCD_LISTEN_CLIENT_URLS: http://0.0.0.0:2379
+      ETCD_INITIAL_CLUSTER_TOKEN: etcd-cluster-1
+      ETCD_INITIAL_CLUSTER_STATE: new
+      ETCD_INITIAL_CLUSTER: etcd1=http://etcd1:2380,etcd2=http://etcd2:2380,etcd3=http://etcd3:2380
+    ports:
+      - "2383:2379"
+      - "2384:2380"
+    networks:
+      - etcd_network
+
+  tests:
+    image: python:3.9-slim-buster
+    depends_on:
+      - etcd1
+      - etcd2
+      - etcd3
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: bash -c "apt-get update && apt-get install -y netcat && while ! nc -z etcd1 2379; do sleep 0.1; done; pip install -r requirements.txt && pytest"
+    networks:
+      - etcd_network
+
+networks:
+  etcd_network:
+    driver: bridge

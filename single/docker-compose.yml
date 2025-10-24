@@ -1,0 +1,31 @@
+version: '3'
+services:
+  etcd:
+    image: quay.io/coreos/etcd:v3.5.0
+    command:
+      - /usr/local/bin/etcd
+      - --name=etcd0
+      - --advertise-client-urls=http://etcd:2379
+      - --listen-client-urls=http://0.0.0.0:2379
+      - --initial-advertise-peer-urls=http://etcd:2380
+      - --listen-peer-urls=http://0.0.0.0:2380
+      - --initial-cluster=etcd0=http://etcd:2380
+    ports:
+      - "2379:2379"
+      - "2380:2380"
+    networks:
+      - etcd_network
+  tests:
+    image: python:3.9-slim-buster
+    depends_on:
+      - etcd
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: bash -c "apt-get update && apt-get install -y netcat && while ! nc -z etcd 2379; do sleep 0.1; done; pip install -r requirements.txt && pytest"
+    networks:
+      - etcd_network
+
+networks:
+  etcd_network:
+    driver: bridge
